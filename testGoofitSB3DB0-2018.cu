@@ -162,12 +162,21 @@ using namespace RooFit;
 void FitSBModel();
 void CreateInputHistoFile();
 int RunEra=2018;
+char MCW2MassTXT[10] ="MCw";
+char MCW2DirTXT[20]  ="reweightV2";
+char MCW3MassTXT[20] ="MCw_scaleErr";
+char MCW3DirTXT[20]  ="reweightV3";
+char MCW4MassTXT[30] ="MCw_scaleErr_noIP2D_xgbv4";
+char MCW4DirTXT[20]  ="reweightV4";
+char MCW5MassTXT[30] ="MCw_scaleErr_noIP2D_xgbv5";
+char MCW5DirTXT[20]  ="reweightV5";
 double FitMassSpectrum(UnbinnedDataSet* dataMass, TCanvas* c2, TH1D* masHist, TH1D* pdfHist, TH1D*sigHist, TH1D* bckHist, int MaxDegree);
 double FitMassSpectrumRoofit(RooDataSet* RooDataMass, TCanvas* c2, TH1D* masHist, TH1D* pdfHist, TH1D*sigHist, TH1D* bkgHist, int MaxDegreeBckg);
 RooGaussian* _constrainVar(RooRealVar *var,RooWorkspace *w=0);
 float*  _getFittedVar(const char* varName,RooWorkspace *w=0);
 void replaceAll(std::string& str, const std::string& from, const std::string& to) ;
 void replaceChar(char * txt, const char * txt1, const char * txt2) ;
+double deltaR(double eta1, double phi1, double eta2, double phi2);
 
 //R__LOAD_LIBRARY(libRooBernsteinSideband)
 
@@ -178,8 +187,13 @@ bool wrongTagged = false;
 bool SetMinuit2  = false;
 bool Folded      = false;
 bool integral    = false;
+bool MCW2         = false;
+bool MCW3         = false;
+bool MCW4         = false;
+bool MCW5         = false;
 
-  char RecoDir[100]                 =  "~/p5prime/[RunEra]/skims/newphi";// RunEra  will be set after...
+  char RecoDir[100]                 =  "/gwpool/users/dini/p5prime/ntuples/after_nominal_selection/add_swap_masses/";// RunEra  will be set after...
+//  char RecoDir[100]                 =  "~/p5prime/[RunEra]/skims/newphi/fixBkg/";// RunEra  will be set after...
   char InputRecoB0TreeName[10]	    = "ntuple";
   char OutputRecoB0TreeName[10]	    = "ntuple";
   char InputFileNameRecoB0[300]     = "[RunEra]Data_All_finalSelection.root";// RunEra  will be set after...
@@ -188,8 +202,8 @@ bool integral    = false;
   char ListParNorm[410] 	    =  "ListParValues-[RunEra]-Q2Bin-2-Bins-.txt_norm";
   char ListPloNorm[410] 	    =  "ListParValues-[RunEra]-Q2Bin-2-Bins-.plo_norm";
   char FitStraName[400] 	    =  "namelist-[RunEra]-Q2Bin-2-Bins-.stra";
-  char OutFileName[400] 	    =  "testGoofitSB3DB0-[RunEra]-[RunEra]-Q2Bin-1.root";
-  char OutFileNameInputHisto[300]   =  "testGoofitSB3DB0-[RunEra]-[RunEra]-InputHisto-Q2Bin-1.root";
+  char OutFileName[400] 	    =  "testGoofitSB3DB0-[RunEra]-Q2Bin-1.root";
+  char OutFileNameInputHisto[300]   =  "testGoofitSB3DB0-[RunEra]-InputHisto-Q2Bin-1.root";
   char OutSaveFileName[400]	    =  "";
   char PDFNameRecoHisto[350]	    =  "B0-RecoHist-[RunEra]-Q2Bin-1.pdf";
   char PDFNameGeneHisto[350]	    =  "B0-GeneHist-[RunEra]-Q2Bin-1.pdf";
@@ -203,10 +217,13 @@ bool integral    = false;
   char SigmaMethodTXT[100]	    =  "";
   char TaggedVarTXT[100]	    =  "";
   char FoldedTXT[100]		    =  "";
-  char fitMassFileName[300]         =  "~/p5prime/massFits/results_fits_[RunEra]_fM_newbdt.root";// RunEra  will be set after...
-  char fitMassFileNameJpsi[300]     =  "~/p5prime/massFits/results_fits_[RunEra]_fM_Jpsi_newbdt.root";// RunEra  will be set after...
-  char fitMassFileNamePsi[300]      =  "~/p5prime/massFits/results_fits_[RunEra]_fM_Psi_newbdt.root";// RunEra  will be set after...
-  char fitMassFileNameQ2Bin7[300]   =  "~/p5prime/massFits/results_fits_[RunEra]_fM_newbin7.root";// RunEra  will be set after...
+//   char fitMassFileName[300]         =  "~/p5prime/massFits/results_fits_[RunEra]_fM_newbdt.root";// RunEra  will be set after...
+//   char fitMassFileNameJpsi[300]     =  "~/p5prime/massFits/results_fits_[RunEra]_fM_Jpsi_newbdt.root";// RunEra  will be set after...
+//   char fitMassFileNamePsi[300]      =  "~/p5prime/massFits/results_fits_[RunEra]_fM_Psi_newbdt.root";// RunEra  will be set after...
+//   char fitMassFileNameQ2Bin7[300]   =  "~/p5prime/massFits/results_fits_[RunEra]_fM_newbin7.root";// RunEra  will be set after...
+  char fitMassFileName[300]         =  "~/p5prime/massFits/noIP2D/xgbv8/results_fits_[RunEra]_fM.root";// RunEra  will be set after...
+  char fitMassFileNameJpsi[300]     =  "~/p5prime/massFits/noIP2D/xgbv8/results_fits_[RunEra]_fM_Jpsi.root";// RunEra  will be set after...
+  char fitMassFileNamePsi[300]      =  "~/p5prime/massFits/noIP2D/xgbv8/results_fits_[RunEra]_fM_Psi.root";// RunEra  will be set after...
   char FMTNSigma1L[10]		    ="";
   char FMTNSigma2L[10]		    ="";
   char FMTNSigma1R[10]		    ="";
@@ -230,7 +247,11 @@ bool integral    = false;
   char testo[300]     = "" ;
   float MarkerSizeSet = 0.35;
   int   PlotLineWidth = 1.;
-
+//                                        0      1      2      3       4       5      6       7
+  std::vector<double> fM_sigmas_2016 = {0.023, 0.015, 0.017, 0.013, 0.0005 , 0.010, 0.0018, 0.013};
+  std::vector<double> fM_sigmas_2017 = {0.018, 0.014, 0.015, 0.010, 0.0004 , 0.008, 0.0016, 0.011};
+  std::vector<double> fM_sigmas_2018 = {0.015, 0.010, 0.011, 0.008, 0.00027, 0.006, 0.0011, 0.008};
+  double fM_sigmas = -99.;
 //============================
 // maxDegree START
 // now defined in NAMELIST 
@@ -302,6 +323,7 @@ bool integral    = false;
 //=================
 //=================
   double ParMin =  0.;
+//  double ParMax =  100.;
   double ParMax =  10000;
   double RndMin =  0.01;
   double RndMax =  0.1;
@@ -311,10 +333,12 @@ bool integral    = false;
 //=================
 
   TCanvas *csignstudy=0;
+  double  NumFittedData = -99;
   double  tagged_mass_rangeMin=5.0;
   double  tagged_mass_rangeMax=5.6;
+  int     MaxDegBernMass = 3;
 
-  double XMinSign = 4.9;
+  double XMinSign = 5.0;
   double XMaxSign = 5.6;
 //  double B0Mass   = 5.27962;
   double B0Mass   = 5.27958;
@@ -326,6 +350,15 @@ bool integral    = false;
   double BpMass = 5.2791;
 //  double KstarMass = 0.892;
   double KstarMass = 0.896;
+  double PDGB0Mass       = B0Mass;
+  double PDGJpsiMass     = JPsiMass;
+  double PDGPsiPrimeMass = PsiPMass;
+  double PDGKstMass      = KstarMass;
+//
+  map<int,vector<double>> swapCut = {
+  {6, {0.13, 0.15, 0.07, 0.43, -0.45, 2.0}},
+  {7, {0.07, 0.13, 0.11, 0.45, -0.65, 1.9}},
+  {8, {0.09, 0.13, 0.07, 0.23, -0.45, 1.0}} };
 
   double XMinSBL  = 0.;
   double XMaxSBL  = 0.;
@@ -474,7 +507,8 @@ gSystem->Load("libRooDoubleCBFast.so");
 
 if (argc<=1 ){
     cout<<"Q2Bin not set"<<endl;
-    cout<<"Usage: "<<argv[0]<< " QBin2 [where QBin2=0,1,2,3,4,5,6,7,8]\n"<<endl;
+    cout<<"Usage: "<<argv[0]<< " QBin2 [where QBin2=0,1,2,3,4,5,6,7,8]\n or... \n"<<endl;
+    cout<<"Usage: "<<argv[0]<< " QBin2 [where QBin2=0,1,2,3,4,5,6,7,8] mcw[2,3,4] [for the MC reweighting option version [2,3,4]] \n"<<endl;
     exit(1);
 }   
 
@@ -546,6 +580,7 @@ switch ( *argv[1] ) {
    if(RunEra==2016) CutSignificance =3;
    if(RunEra==2017) CutSignificance =3;
    if(RunEra==2018) CutSignificance =4.;
+   MaxDegBernMass = 5;
 //   CutSignificance =4;
 //    xCosLHBin =  5;
 //    xCosKHBin =  5;
@@ -582,7 +617,7 @@ switch ( *argv[1] ) {
    Q2Min = 14.18; 
    Q2Max = 16.; 
    Q2Bin = 7;
-   sprintf(fitMassFileName,fitMassFileNameQ2Bin7);
+//   sprintf(fitMassFileName,fitMassFileNameQ2Bin7);
    if(RunEra==2016) CutSignificance =2;
    if(RunEra==2017) CutSignificance =2;
    if(RunEra==2018) CutSignificance =2;
@@ -602,14 +637,55 @@ switch ( *argv[1] ) {
   default : 
     // Process for all other cases.
     cout<<"Q2Bin not set correctly!!!"<<endl;
-    cout<<"Usage: "<<argv[0]<< " QBin2 [where QBin2=0,1,2,3,4,5,6,7,8]\n"<<endl;
+    cout<<"Usage: "<<argv[0]<< " QBin2 [where QBin2=0,1,2,3,4,5,6,7,8]\n or... \n"<<endl;
+    cout<<"Usage: "<<argv[0]<< " QBin2 [where QBin2=0,1,2,3,4,5,6,7,8] mcw[2,3,4] [for the MC reweighting option version [2,3,4]] \n"<<endl;
     exit(1);
 
 }
+//    if (argc>2 && ((strcmp(argv[2],"MCW2") == 0)||(strcmp(argv[2],"mcw2") == 0)) ){
+//     MCW2=true;
+//     std::cout<<"========================================================================="<<endl;
+//     std::cout<<"========================================================================="<<endl;
+//     std::cout<<"Setting the option: MC reweighting 2"<<std::endl;
+//     std::cout<<"========================================================================="<<endl;
+//     std::cout<<"========================================================================="<<endl;
+//     sprintf(RecoDir,"%s/%s",RecoDir,MCW2DirTXT);
+//     replaceChar(fitMassFileName,".root",Form("_%s.root",MCW2MassTXT));
+//    }
+//    if (argc>2 && ((strcmp(argv[2],"MCW3") == 0)||(strcmp(argv[2],"mcw3") == 0)) ){
+//     MCW3=true;
+//     std::cout<<"========================================================================="<<endl;
+//     std::cout<<"========================================================================="<<endl;
+//     std::cout<<"Setting the option: MC reweighting 3"<<std::endl;
+//     std::cout<<"========================================================================="<<endl;
+//     std::cout<<"========================================================================="<<endl;
+//     sprintf(RecoDir,"%s/%s",RecoDir,MCW3DirTXT);
+//     replaceChar(fitMassFileName,".root",Form("_%s.root",MCW3MassTXT));
+//    }
+//    if (argc>2 && ((strcmp(argv[2],"MCW4") == 0)||(strcmp(argv[2],"mcw4") == 0)) ){
+//     MCW4=true;
+//     std::cout<<"========================================================================="<<endl;
+//     std::cout<<"========================================================================="<<endl;
+//     std::cout<<"Setting the option: MC reweighting 4"<<std::endl;
+//     std::cout<<"========================================================================="<<endl;
+//     std::cout<<"========================================================================="<<endl;
+//     sprintf(RecoDir,"%s/%s",RecoDir,MCW4DirTXT);
+//     replaceChar(fitMassFileName,".root",Form("_%s.root",MCW4MassTXT));
+//    }
+//    if (argc>2 && ((strcmp(argv[2],"MCW5") == 0)||(strcmp(argv[2],"mcw5") == 0)) ){
+//     MCW5=true;
+//     std::cout<<"========================================================================="<<endl;
+//     std::cout<<"========================================================================="<<endl;
+//     std::cout<<"Setting the option: MC reweighting 5"<<std::endl;
+//     std::cout<<"========================================================================="<<endl;
+//     std::cout<<"========================================================================="<<endl;
+//     sprintf(RecoDir,"%s/%s",RecoDir,MCW5DirTXT);
+//     replaceChar(fitMassFileName,".root",Form("_%s.root",MCW5MassTXT));
+//    }
 //
 //  Setting Input Files/Dir for RunEra..
 //
-replaceChar(RecoDir,"[RunEra]",Form("%d",RunEra));
+//replaceChar(RecoDir,"[RunEra]",Form("%d",RunEra));
 replaceChar(InputFileNameRecoB0,"[RunEra]",Form("%d",RunEra));
 replaceChar(fitMassFileName,"[RunEra]",Form("%d",RunEra));
 //sprintf(fitMassFileName,"results_fits_%d_fixDataPdf.root",RunEra);
@@ -622,9 +698,25 @@ replaceChar(fitMassFileName,"[RunEra]",Form("%d",RunEra));
 //======================================================================
 //======================================================================
 //======================================================================
-    std::cout<<"====================================="<<endl;
-    
-    
+   std::cout<<"====================================="<<endl;
+
+   if( Q2Bin<=8){
+    if      (RunEra==2016){
+     fM_sigmas=fM_sigmas_2016[Q2Bin];
+     std::cout<<Form("=> Setting fM_sigmas_2016[%d] = %f",Q2Bin,fM_sigmas )<<std::endl;
+    }else if(RunEra==2017){
+     fM_sigmas=fM_sigmas_2017[Q2Bin];
+     std::cout<<Form("=> Setting fM_sigmas_2017[%d] = %f",Q2Bin,fM_sigmas )<<std::endl;
+    }else if(RunEra==2018){
+     fM_sigmas=fM_sigmas_2018[Q2Bin];
+     std::cout<<Form("=> Setting fM_sigmas_2018[%d] = %f",Q2Bin,fM_sigmas )<<std::endl;
+    }else{
+     std::cout<<"Q2Bin and fM_sigmas_2018not set correctly!!!"<<std::endl;
+     exit(1);
+    }
+   }
+   std::cout<<"====================================="<<endl;
+
 
 //   if (argc>3 && (strcmp(argv[3],"i") == 0) ){
 //     integral = true;
@@ -710,6 +802,11 @@ replaceChar(fitMassFileName,"[RunEra]",Form("%d",RunEra));
     std::cout<<Form("Error: setting  tagged_mass_rangeMax=%f < XMaxSign=%f",tagged_mass_rangeMax,XMaxSign)<<std::endl;
     exit(0);
    }
+  }
+  map<string,string>::iterator  it9= mappa.find("CutSignificance");
+  if(it9 != mappa.end()) {
+   CutSignificance   =    atof (mappa["CutSignificance"  ].c_str() ) ;
+   std::cout<<"Warning: setting  CutSignificance from namelist= "<<CutSignificance<<std::endl;
   }
 
   std::cout<<" Num Param Bernstein polynomial CosL :  "<<maxDegree1<<std::endl;
@@ -1148,12 +1245,14 @@ void FitSBModel(){
 
 
 
-  int	numParameters = (maxDegree1+1)*(maxDegree2+1)*(maxDegree3+1);
+  int	numParameters = (maxDegree1+1)*(maxDegree2+1)*(maxDegree3);
+//  int	numParameters = (maxDegree1+1)*(maxDegree2+1)*(maxDegree3+1);
   int icc=0;
   char ParCheck[numParameters][30];
   for(int i = 0; i <= maxDegree1 ; ++i) {
     for(int j = 0; j <= maxDegree2 ; ++j) {
-     for(int k = 0; k <= maxDegree3 ; ++k) {
+     for(int k = 0; k <  maxDegree3 ; ++k) {
+//     for(int k = 0; k <= maxDegree3 ; ++k) {
             
       	    sprintf(ParCheck[icc], "cosL=%d cosK=%d phi=%d", i,j,k); 
 //	    cout<<Form("ParCheck(%d)= %s",icc,ParCheck[icc])<<endl;
@@ -1194,7 +1293,7 @@ void FitSBModel(){
 //			 std::cout<<"parIni = "<<parIni<<std::endl;
 //     			if(parIni!=0.0 && fabs(parIni)>0.00001) {
 //     			 coeffPoly.emplace_back(varName, parIni,-100.0+parIni,100.0+parIni);
-     			 coeffPoly.emplace_back(varName, parIni,ParMin,ParMax);
+     			 coeffPoly.emplace_back(varName, parIni,0.0001,ParMin,ParMax);
 			 NumParamFree++;
 			 if(NumParamFree>1) FoundParamNotZero = true;
 //     			 coeffPoly.emplace_back(varName, parIni,0.00001,0.,1000.);
@@ -1836,6 +1935,13 @@ void FitSBModel(){
 //
 //  Manual Fit
 //
+        if (Q2Bin==4){
+         double arglist[1];
+	 arglist[0] = 1.e-16;
+	 int ierr;
+         Minuit->mnexcm("SET EPS", arglist, 1, ierr);
+ 	 std::cout<<Form("==> SET EPS = %e",arglist[0])<<std::endl;
+	} 
   	std::cout<<"=============================================================="<<std::endl;
  	std::cout<<"=============================================================="<<std::endl;
  	std::cout<<Form("                      START MANUAL FIT")<<std::endl;
@@ -1885,7 +1991,7 @@ void FitSBModel(){
   std::vector<RooRealVar> parLis;
   RooArgList *coefLis = new RooArgList();
   for (int i=0;i<numParameters;++i){
-   sprintf(varName, "p%02d_%d", i,RunEra);
+   sprintf(varName, "p%03d_%d", i,RunEra);
    parLis.emplace_back(varName,varName, coeffPoly[i].getValue(),ParMin,ParMax);
   }	      
   for (int i=0;i<numParameters;++i){
@@ -1894,16 +2000,16 @@ void FitSBModel(){
 //  gROOT->ProcessLine(".L RooBernsteinSideband.cxx+");
   BernSideBand    = new RooBernsteinSideband(Form("BernSideBand_bin%d_%d",Q2Bin,RunEra),Form("BernSideBand_bin%d_%d",Q2Bin,RunEra),*ctL,*ctK,*phi,*coefLis,maxDegree1,maxDegree2,maxDegree3);
 
-  RooWorkspace wsb("wsb","workspace sideband");
+  RooWorkspace* wsb =  new RooWorkspace("wsb","workspace sideband");
 //set to the fit range!!!
   RooRealVar *max_sbl=new RooRealVar(Form("max_sbl_bin%d_%d",Q2Bin,RunEra),Form("max_sbl_bin%d_%d",Q2Bin,RunEra),XMaxSBL);
   RooRealVar *min_sbr=new RooRealVar(Form("min_sbr_bin%d_%d",Q2Bin,RunEra),Form("min_sbr_bin%d_%d",Q2Bin,RunEra),XMinSBR);
-  wsb.import(*covMatrix,Form("covMatrix_bin%d_%d",Q2Bin,RunEra));
-  wsb.import(*BernSideBand);
-  wsb.import(*bkg_mass_sb);
-  wsb.import(*max_sbl);
-  wsb.import(*min_sbr);
-  wsb.writeToFile(OutSaveFileName);
+  wsb->import(*covMatrix,Form("covMatrix_bin%d_%d",Q2Bin,RunEra));
+  wsb->import(*BernSideBand);
+  wsb->import(*bkg_mass_sb);
+  wsb->import(*max_sbl);
+  wsb->import(*min_sbr);
+  wsb->writeToFile(OutSaveFileName);
   cout<<"save  workspace ==> wsb in "<<OutSaveFileName<<"\n"<<endl;
 /*  double arglist[2]; 
   int err = 0;
@@ -3055,7 +3161,7 @@ void CreateInputHistoFile(){
   TFile*OutFileNtupla = TFile::Open(OutFileNameInputHisto,"RECREATE");
   RecoB0TreeOut = new TTree(OutputRecoB0TreeName,OutputRecoB0TreeName) ;
   RecoB0TreeOut -> SetAutoSave(500000000);
-  TCanvas* c2 = new TCanvas("c2","Fit Mass Spectrum",200,10,900,780);
+  TCanvas* cg = new TCanvas("cg","Fit Mass Spectrum Test",200,10,900,780);
   TCanvas* c3 = new TCanvas("c3","Reco Histograms",200,10,900,780);
   c3->Divide(2,2);  
 
@@ -3122,9 +3228,14 @@ void CreateInputHistoFile(){
   double  bBarMass	 ;
   double  dR_mum_trkm    ;
   double  dR_mup_trkp    ;
-  bool    passB0Psi_lmnr ;
-  bool    passB0Psi_jpsi ;
-  bool    passB0Psi_psip ;
+//   bool    passB0Psi_lmnr ;
+//   bool    passB0Psi_jpsi ;
+//   bool    passB0Psi_psip ;
+  int    passB0Psi_lmnr ;
+  int    passB0Psi_jpsi ;
+  int    passB0Psi_psip ;
+  int    xcut=       -99;
+//  bool    xcut= false;
   bool    passB0Psi      ;
 //  
   bool    XCut= false    ;
@@ -3134,6 +3245,23 @@ void CreateInputHistoFile(){
   double  mmkMass	=0;
   double  wt_mass	=0;
   double  wt_kstarmass  =0;
+// swapped cut
+  double kstTrkmPt		     = 0;
+  double kstTrkmEta		     = 0;
+  double kstTrkmPhi		     = 0;
+  double kstTrkpPt		     = 0;
+  double kstTrkpEta		     = 0;
+  double kstTrkpPhi		     = 0;
+  double mumPt			     = 0;
+  double mumEta			     = 0;
+  double mumPhi			     = 0;
+  double mupPt			     = 0;
+  double mupEta			     = 0;
+  double mupPhi			     = 0;
+  double selected_swapped_b0_mass    = 0;
+  double selected_swapped_kstar_mass = 0;
+  double selected_swapped_mumu_mass  = 0;
+  Long64_t charge_pf_swapped_track     = 0;
 //
   RecoB0Tree->SetBranchAddress("tagged_mass"   ,&tagged_mass);
   RecoB0Tree->SetBranchAddress("cos_theta_l"   ,&cos_theta_l);
@@ -3151,13 +3279,32 @@ void CreateInputHistoFile(){
   RecoB0Tree->SetBranchAddress("passB0Psi_lmnr",&passB0Psi_lmnr);
   RecoB0Tree->SetBranchAddress("passB0Psi_jpsi",&passB0Psi_jpsi);
   RecoB0Tree->SetBranchAddress("passB0Psi_psip",&passB0Psi_psip);
-  RecoB0Tree->SetBranchAddress("kaonPt"		    ,&kaonPt	    );
-  RecoB0Tree->SetBranchAddress("pionPt"		    ,&pionPt	    );
-  RecoB0Tree->SetBranchAddress("mmpiMass" 	    ,&mmpiMass      );
-  RecoB0Tree->SetBranchAddress("mmkMass"  	    ,&mmkMass	    );
-  RecoB0Tree->SetBranchAddress("wt_mass"  	    ,&wt_mass	    );
-  RecoB0Tree->SetBranchAddress("wt_kstarmass"	    ,&wt_kstarmass  );
-  
+  RecoB0Tree->SetBranchAddress("xcut"          ,&xcut);
+  RecoB0Tree->SetBranchAddress("kaonPt"	       ,&kaonPt        );
+  RecoB0Tree->SetBranchAddress("pionPt"	       ,&pionPt        );
+  RecoB0Tree->SetBranchAddress("mmpiMass"      ,&mmpiMass      );
+  RecoB0Tree->SetBranchAddress("mmkMass"       ,&mmkMass       );
+  RecoB0Tree->SetBranchAddress("wt_mass"       ,&wt_mass       );
+  RecoB0Tree->SetBranchAddress("wt_kstarmass"  ,&wt_kstarmass  );
+//  
+  RecoB0Tree->SetBranchAddress("kstTrkmPt"     , &kstTrkmPt    );
+  RecoB0Tree->SetBranchAddress("kstTrkmEta"    , &kstTrkmEta   );
+  RecoB0Tree->SetBranchAddress("kstTrkmPhi"    , &kstTrkmPhi   );
+  RecoB0Tree->SetBranchAddress("kstTrkpPt"     , &kstTrkpPt    );
+  RecoB0Tree->SetBranchAddress("kstTrkpEta"    , &kstTrkpEta   );
+  RecoB0Tree->SetBranchAddress("kstTrkpPhi"    , &kstTrkpPhi   );
+  RecoB0Tree->SetBranchAddress("mumPt"	       , &mumPt        );
+  RecoB0Tree->SetBranchAddress("mumEta"        , &mumEta       );
+  RecoB0Tree->SetBranchAddress("mumPhi"        , &mumPhi       );
+  RecoB0Tree->SetBranchAddress("mupPt"	       , &mupPt        );
+  RecoB0Tree->SetBranchAddress("mupEta"	       , &mupEta       );
+  RecoB0Tree->SetBranchAddress("mupPhi"	       , &mupPhi       );
+  RecoB0Tree->SetBranchAddress("selected_swapped_b0_mass"   , &selected_swapped_b0_mass   );
+  RecoB0Tree->SetBranchAddress("selected_swapped_kstar_mass", &selected_swapped_kstar_mass);
+  RecoB0Tree->SetBranchAddress("selected_swapped_mumu_mass" , &selected_swapped_mumu_mass );
+  RecoB0Tree->SetBranchAddress("charge_pf_swapped_track"    , &charge_pf_swapped_track    );
+
+// Ntupla Out
   RecoB0TreeOut->Branch("cos_theta_l"   ,&cos_theta_l    ,   "cos_theta_l/D"   );
   RecoB0TreeOut->Branch("cos_theta_k"   ,&cos_theta_k    ,   "cos_theta_k/D"   );
   RecoB0TreeOut->Branch("phi_kst_mumu"  ,&phi_kst_mumu   ,   "phi_kst_mumu/D"  );
@@ -3193,6 +3340,7 @@ void CreateInputHistoFile(){
   std::vector<GooFit::Observable> dataMassVec;
   dataMassVec.push_back(xMass);
   UnbinnedDataSet* dataMass = new GooFit::UnbinnedDataSet(dataMassVec);
+  int year = RunEra-2010;
 //  
 //  
   int nentries = (int)RecoB0Tree->GetEntries();
@@ -3200,14 +3348,28 @@ void CreateInputHistoFile(){
    for (Int_t i=0;i<nentries;i++) { 
     RecoB0Tree->GetEntry(i);
     recQ2         =  mumuMass*mumuMass  ;
+      // anti-swap cut
+    if (fabs(selected_swapped_mumu_mass-PDGJpsiMass)<swapCut[year][0] &&
+        fabs(selected_swapped_kstar_mass-PDGKstMass)<swapCut[year][1] &&
+        fabs(selected_swapped_b0_mass-PDGB0Mass-selected_swapped_mumu_mass+PDGJpsiMass)<swapCut[year][2] &&
+        ( ( charge_pf_swapped_track<0 && (deltaR(kstTrkmEta,kstTrkmPhi,mumEta,mumPhi)<swapCut[year][3] &&
+        				  (mumPt-kstTrkmPt)/kstTrkmPt>swapCut[year][4] &&
+        				  (mumPt-kstTrkmPt)/kstTrkmPt<swapCut[year][5]) ) ||
+          ( charge_pf_swapped_track>0 && (deltaR(kstTrkpEta,kstTrkpPhi,mupEta,mupPhi)<swapCut[year][3] &&
+        				  (mupPt-kstTrkpPt)/kstTrkpPt>swapCut[year][4] &&
+        				  (mupPt-kstTrkpPt)/kstTrkpPt<swapCut[year][5]) ) ) ) continue;
     if(Q2Bin==4){
-    XCut=(((BpMass-wt_mass)-y0Cut)/(y1Cut-y0Cut))<(((wt_kstarmass-KstarMass)-x0Cut)/(x1Cut-x0Cut))&&kaonPt>pionPt&&(wt_kstarmass-KstarMass)>0
-    	 &&(mmpiMass>CutX1&&mmpiMass<CutX2)&&(mmkMass>CutY1&&mmkMass<CutY2)&&((mmkMass-y_0Cut)/(y_1Cut-y_0Cut))>((mmpiMass-x_0Cut)/(x_1Cut-x_0Cut));
-    passB0Psi =passB0Psi_jpsi&&!XCut;
+     XCut=(((BpMass-wt_mass)-y0Cut)/(y1Cut-y0Cut))<(((wt_kstarmass-KstarMass)-x0Cut)/(x1Cut-x0Cut))&&kaonPt>pionPt&&(wt_kstarmass-KstarMass)>0
+     	 &&(mmpiMass>CutX1&&mmpiMass<CutX2)&&(mmkMass>CutY1&&mmkMass<CutY2)&&((mmkMass-y_0Cut)/(y_1Cut-y_0Cut))>((mmpiMass-x_0Cut)/(x_1Cut-x_0Cut));
+     if (XCut&&xcut!=1 || !XCut&&xcut!=0){
+       std::cout<<"==>> Error checking XCut!!!! <<=="<<xMassHBin<<std::endl;
+     }
+//     passB0Psi =(passB0Psi_jpsi==1)&&(!xcut);
+     passB0Psi =(passB0Psi_jpsi==1)&&(xcut==0);
     }else if(Q2Bin==6){  
-     passB0Psi =passB0Psi_psip;
+     passB0Psi = (passB0Psi_psip==1);
     }else{  
-     passB0Psi =passB0Psi_lmnr;
+     passB0Psi = (passB0Psi_lmnr==1);
     }  
 //    double theBMass = tagged_mass;
 //    double theBMass = tagB0*bMass+(1.-tagB0)*bBarMass;
@@ -3270,7 +3432,7 @@ void CreateInputHistoFile(){
   cout<<"\n***********************************"<<endl;
   cout<<"***********************************"<<endl;
 //
-  B0Sigma = FitMassSpectrum(dataMass, c2, HxMass,pdfHxMass,sigHxMass,bkgHxMass,5);
+  B0Sigma = FitMassSpectrum(dataMass, cg, HxMass,pdfHxMass,sigHxMass,bkgHxMass,MaxDegBernMass);
 //  
   
   
@@ -3284,7 +3446,7 @@ void CreateInputHistoFile(){
   
   OutFileNtupla->cd();
   
-  c2->Write();
+  cg->Write();
   gSystem->Exec(Form("mv %s %s.tmp",PNGNameMassHist,PNGNameMassHist));
 //   HxReco->Write();
 //   HxRecoX->Write();
@@ -3368,6 +3530,8 @@ double FitMassSpectrumRoofit(RooDataSet* data, TCanvas* c2, TH1D* masHist, TH1D*
 //    tagged_mass->setRange(XMinSign,XMaxSign);
 //    if(Q2Bin==0)  tagged_mass_rangeMin = 4.9;
     tagged_mass->setRange("full",tagged_mass_rangeMin,tagged_mass_rangeMax);
+    NumFittedData = data->sumEntries(Form("tagged_mass>%f&&tagged_mass<%f",tagged_mass_rangeMin,tagged_mass_rangeMax));
+    std::cout<<Form("==>> Warning!!!  Fitting number of events = %f", NumFittedData)<<std::endl;
    
 //    tagged_mass->setRange(XMinFull,XMaxFull);
     
@@ -3409,6 +3573,10 @@ double FitMassSpectrumRoofit(RooDataSet* data, TCanvas* c2, TH1D* masHist, TH1D*
     pow(yield_fromMC_RT->getError()*yield_fromMC_WT->getVal()/(yield_fromMC_RT->getVal()+yield_fromMC_WT->getVal())/(yield_fromMC_RT->getVal()+yield_fromMC_WT->getVal()),2)+
     pow(yield_fromMC_WT->getError()*yield_fromMC_RT->getVal()/(yield_fromMC_RT->getVal()+yield_fromMC_WT->getVal())/(yield_fromMC_RT->getVal()+yield_fromMC_WT->getVal()),2)));
     cout<<Form("fraction mistagged = %f +/- %f\n",fraction->getVal(),fraction->getError())<<endl;
+
+    RooRealVar * fractionWT = new RooRealVar("fractionWT","fractionWT",0.,1.);
+    fractionWT->setVal(yield_fromMC_WT->getVal()/(yield_fromMC_RT->getVal()+yield_fromMC_WT->getVal()));
+    fractionWT->setError(fM_sigmas);
 //    
     RooRealVar    * mean_rt      = 0;
     RooAbsPdf     *theRTgauss    = 0;
@@ -3416,7 +3584,7 @@ double FitMassSpectrumRoofit(RooDataSet* data, TCanvas* c2, TH1D* masHist, TH1D*
     RooRealVar	  * sigma_rt2	 = 0;
     RooGaussian   * c_sigma_rt1  = 0;
     RooGaussian   * c_sigma_rt2  = 0;
-    RooGaussian   * c_mean_rt	 = 0;
+//    RooGaussian   * c_mean_rt	 = 0;
     RooGaussian   * c_f1rt	 = 0;
     RooProdPdf	  * c_RTgauss	 = 0;
     RooRealVar	  * alpha_rt1	 = 0;
@@ -3429,8 +3597,8 @@ double FitMassSpectrumRoofit(RooDataSet* data, TCanvas* c2, TH1D* masHist, TH1D*
     RooGaussian   * c_alpha_rt2  = 0;
     RooGaussian   * c_n_rt1	 = 0;
     RooGaussian   * c_n_rt2	 = 0;
-//    RooFormulaVar * deltaPeaks   = 0;
-//    RooGaussian   * c_deltaPeaks = 0;
+    RooRealVar    * deltaPeakVar = 0;
+    RooGaussian   * c_deltaPeaks = 0;
     RooArgList    * c_pdfs       = 0;
     RooArgList    * c_pdfs_rt    = 0;
     RooArgList    * c_pdfs_wt    = 0;
@@ -3440,6 +3608,7 @@ double FitMassSpectrumRoofit(RooDataSet* data, TCanvas* c2, TH1D* masHist, TH1D*
     RooRealVar	  *alpha_wt2	 = 0;
     RooRealVar	  *n_wt1	 = 0;
     RooRealVar	  *n_wt2	 = 0;
+    RooFormulaVar *mWT_data      = 0;
 
 
 
@@ -3475,7 +3644,7 @@ double FitMassSpectrumRoofit(RooDataSet* data, TCanvas* c2, TH1D* masHist, TH1D*
        f1rt	   = w->var(Form("f^{RT%d}",Q2Bin));
        c_sigma_rt1 = _constrainVar(sigma_rt1,w);
        c_sigma_rt2 = _constrainVar(sigma_rt2,w);
-       c_mean_rt   = _constrainVar(mean_rt,w);
+//       c_mean_rt   = _constrainVar(mean_rt,w);
        c_f1rt	   = _constrainVar(f1rt,w);
  
        ////// creating constraints for the RT component
@@ -3483,10 +3652,13 @@ double FitMassSpectrumRoofit(RooDataSet* data, TCanvas* c2, TH1D* masHist, TH1D*
 //        c_pdfs    = new RooArgList(            *c_sigma_rt1,*c_sigma_rt2,*c_mean_rt,*c_f1rt);
 //        c_pdfs_rt = new RooArgList(*theRTgauss,*c_sigma_rt1,*c_sigma_rt2,*c_mean_rt,*c_f1rt);
 //        c_vars    = new RooArgSet(               *sigma_rt1,  *sigma_rt2,  *mean_rt ,*f1rt);
-       c_pdfs    = new RooArgList(            *c_sigma_rt1,*c_sigma_rt2,*c_mean_rt,*c_f1rt);
-       c_pdfs_rt = new RooArgList(*theRTgauss,*c_sigma_rt1,*c_sigma_rt2,*c_mean_rt,*c_f1rt);
-       c_vars    = new RooArgSet(               *sigma_rt1,  *sigma_rt2,  *mean_rt,*f1rt);
-    }
+//        c_pdfs    = new RooArgList(            *c_sigma_rt1,*c_sigma_rt2,*c_mean_rt,*c_f1rt);
+//        c_pdfs_rt = new RooArgList(*theRTgauss,*c_sigma_rt1,*c_sigma_rt2,*c_mean_rt,*c_f1rt);
+//        c_vars    = new RooArgSet(               *sigma_rt1,  *sigma_rt2,  *mean_rt,*f1rt);
+       c_pdfs    = new RooArgList(            *c_sigma_rt1,*c_sigma_rt2,*c_f1rt);
+       c_pdfs_rt = new RooArgList(*theRTgauss,*c_sigma_rt1,*c_sigma_rt2,*c_f1rt);
+       c_vars    = new RooArgSet(               *sigma_rt1,  *sigma_rt2,*f1rt);
+   }
 // RT Double CB   
     if( w->pdf(Form("doublecb_RT%d",Q2Bin))){ 
        cout<<Form("FitMassSpectrumRoofit: doublecb_RT%d",Q2Bin)<<endl;
@@ -3514,12 +3686,12 @@ double FitMassSpectrumRoofit(RooDataSet* data, TCanvas* c2, TH1D* masHist, TH1D*
            sigma_rt2     = w->var(Form("#sigma_{RT2}^{%d}",Q2Bin));
            c_f1rt	 = _constrainVar(f1rt,w);
            c_sigma_rt2   = _constrainVar(sigma_rt2, w);
-//            c_pdfs    = new RooArgList(              *c_sigma_rt1, *c_sigma_rt2, *c_alpha_rt1, *c_alpha_rt2, *c_n_rt1, *c_n_rt2, *c_f1rt);
-//            c_pdfs_rt = new RooArgList(*theRTgauss , *c_sigma_rt1, *c_sigma_rt2, *c_alpha_rt1, *c_alpha_rt2, *c_n_rt1, *c_n_rt2, *c_f1rt);
-//            c_vars    = new RooArgSet(                 *sigma_rt1,   *sigma_rt2,   *alpha_rt1,   *alpha_rt2,   *n_rt1,   *n_rt2, *c_f1rt);
-           c_pdfs    = new RooArgList(              *c_sigma_rt1, *c_sigma_rt2, *c_alpha_rt1, *c_alpha_rt2, *c_n_rt1, *c_n_rt2);
-           c_pdfs_rt = new RooArgList(*theRTgauss , *c_sigma_rt1, *c_sigma_rt2, *c_alpha_rt1, *c_alpha_rt2, *c_n_rt1, *c_n_rt2);
-           c_vars    = new RooArgSet(                 *sigma_rt1,   *sigma_rt2,   *alpha_rt1,   *alpha_rt2,   *n_rt1,   *n_rt2);
+           c_pdfs    = new RooArgList(  	    *c_sigma_rt1, *c_sigma_rt2, *c_alpha_rt1, *c_alpha_rt2, *c_n_rt1, *c_n_rt2, *c_f1rt);
+           c_pdfs_rt = new RooArgList(*theRTgauss , *c_sigma_rt1, *c_sigma_rt2, *c_alpha_rt1, *c_alpha_rt2, *c_n_rt1, *c_n_rt2, *c_f1rt);
+           c_vars    = new RooArgSet(		      *sigma_rt1,   *sigma_rt2,   *alpha_rt1,	*alpha_rt2,   *n_rt1,	*n_rt2, *c_f1rt);
+//         c_pdfs    = new RooArgList(              *c_sigma_rt1, *c_sigma_rt2, *c_alpha_rt1, *c_alpha_rt2, *c_n_rt1, *c_n_rt2);
+//         c_pdfs_rt = new RooArgList(*theRTgauss , *c_sigma_rt1, *c_sigma_rt2, *c_alpha_rt1, *c_alpha_rt2, *c_n_rt1, *c_n_rt2);
+//         c_vars    = new RooArgSet(                 *sigma_rt1,   *sigma_rt2,   *alpha_rt1,   *alpha_rt2,   *n_rt1,   *n_rt2);
        }
     } 
 
@@ -3563,20 +3735,34 @@ double FitMassSpectrumRoofit(RooDataSet* data, TCanvas* c2, TH1D* masHist, TH1D*
 //       n_wt2->setMax(150);
 //     }  
       
-//    
-    RooAbsPdf *theWTgauss = w->pdf(Form("doublecb_%d",Q2Bin));
-    if(!theWTgauss)  {
-     cout<<"pdf theWTgauss not found!!!\n"<<endl;
-     exit(1);
-    } else{
-     cout<<Form("pdf %s  found...\n",theWTgauss->GetName())<<endl;
-    }
-    RooGaussian* c_mean_wt     = _constrainVar(mean_wt, w);
+// 
+
+//  => now theWTgauss is renamed theWTgaussMC (from the MC fit). 
+//     RooAbsPdf *theWTgaussMC = w->pdf(Form("doublecb_%d",Q2Bin));
+//     if(!theWTgaussMC)  {
+//      cout<<"pdf theWTgaussMC not found!!!\n"<<endl;
+//      exit(1);
+//     } else{
+//      cout<<Form("pdf %s  found...\n",theWTgaussMC->GetName())<<endl;
+//     }
+//    RooGaussian* c_mean_wt     = _constrainVar(mean_wt, w);
     RooGaussian* c_sigma_wt    = _constrainVar(sigma_wt, w);
     RooGaussian* c_alpha_wt1   = _constrainVar(alpha_wt1, w);
     RooGaussian* c_alpha_wt2   = _constrainVar(alpha_wt2, w);
     RooGaussian* c_n_wt1       = _constrainVar(n_wt1, w);
     RooGaussian* c_n_wt2       = _constrainVar(n_wt2, w);
+    double deltaPeakValue=mean_rt->getVal()-mean_wt->getVal();
+    double deltaPeakError=sqrt(mean_rt->getError()*mean_rt->getError()+mean_wt->getError()*mean_wt->getError());
+
+    deltaPeakVar = new RooRealVar (Form("deltaPeakVar%d",Q2Bin), Form("deltaPeakVar%d",Q2Bin), deltaPeakValue, 0., 0.2) ;
+    c_deltaPeaks = new RooGaussian(Form("deltaPeaks%d",Q2Bin) , "c_deltaPeaks", *deltaPeakVar, RooConst( deltaPeakValue ), RooConst(deltaPeakError )); // value to be checked
+    mWT_data = new  RooFormulaVar(Form("mWT_data%d",Q2Bin), "@0 + @1", RooArgList(*mean_rt, *deltaPeakVar));
+
+//  => new theWTgauss with deltaPeaks constraint 
+    RooDoubleCBFast* theWTgauss = new RooDoubleCBFast(Form("doublecb_%d",Q2Bin),Form("doublecb_%d",Q2Bin), *tagged_mass, *mWT_data, *sigma_wt, *alpha_wt1, *n_wt1, *alpha_wt2, *n_wt2);	
+    c_vars->add(*deltaPeakVar);
+    c_pdfs ->add(*c_deltaPeaks);
+        
 //   if(w->obj( "deltaPeaks")) {
 //    if(w->obj( Form("deltaPeaks%d",Q2Bin))) {
 //     deltaPeaks  = (RooFormulaVar *)w->obj(Form("deltaPeaks%d",Q2Bin));
@@ -3595,15 +3781,18 @@ double FitMassSpectrumRoofit(RooDataSet* data, TCanvas* c2, TH1D* masHist, TH1D*
     ////// creating constraints for the WT component
 //    RooProdPdf* c_WTgauss  = new RooProdPdf("c_WTgauss" , "c_WTgauss"\
 //    ,RooArgList(*theWTgauss,*c_alpha_wt1,*c_n_wt1,*c_sigma_wt,*c_mean_wt,*c_alpha_wt2,*c_n_wt2  ) );     
-    RooRealVar  frt("F_{RT}"			  , "frt"   , fraction->getVal() , 0, 1);
-    RooGaussian c_frt("c_frt"           	   , "c_frt" , frt,  RooFit::RooConst(fraction->getVal()) , RooFit::RooConst(fraction->getError()) );
+//    RooRealVar  frt("F_{RT}"			  , "frt"   , fraction->getVal() , 0, 1);
+//    RooGaussian c_frt("c_frt"           	   , "c_frt" , frt,  RooFit::RooConst(fraction->getVal()) , RooFit::RooConst(fraction->getError()) );
+    RooRealVar  frt(Form("f_{M}^{%d}",Q2Bin)			  , Form("f_{M}^{%d}",Q2Bin)   , fractionWT->getVal() , 0, 1);
+    RooGaussian c_frt("c_frt"           	   , "c_frt" , frt,  RooFit::RooConst(fractionWT->getVal()) , RooFit::RooConst(fractionWT->getError()) );
 //    RooAddPdf	signalFunction("sumgaus"	  , "rt+wt" , RooArgList(*theRTgauss,*theWTgauss), RooArgList(frt));
 //     RooGaussian c_frt("c_frt"           	   , "c_frt" , frt,  (fraction) , (*fraction_s) );
 //    RooGaussian c_frt("c_frt"           	   , "c_frt" , frt,  RooFit::RooConst(0.87628877977) , RooFit::RooConst(0.000523435458235) );
  
     c_pdfs_wt = new RooArgList(*theWTgauss);
     c_pdfs_wt->add(*c_sigma_wt);
-    c_pdfs_wt->add(*c_mean_wt);
+//    c_pdfs_wt->add(*c_mean_wt);
+    c_pdfs_wt->add(*c_deltaPeaks);
     c_pdfs_wt->add(*c_alpha_wt1);
     c_pdfs_wt->add(*c_alpha_wt2);
     c_pdfs_wt->add(*c_n_wt1);
@@ -3611,10 +3800,12 @@ double FitMassSpectrumRoofit(RooDataSet* data, TCanvas* c2, TH1D* masHist, TH1D*
 
 
     RooProdPdf* c_WTgauss  = new RooProdPdf("c_WTgauss" , "c_WTgauss",*c_pdfs_wt);
-    RooAddPdf	signalFunction("sumgaus"	  , "rt+wt" , RooArgList(*c_RTgauss,*c_WTgauss), RooArgList(frt));
+    RooAddPdf	signalFunction("sumgaus"	  , "rt+wt" , RooArgList(*c_WTgauss,*c_RTgauss), RooArgList(frt));
+//    RooAddPdf	signalFunction("sumgaus"	  , "rt+wt" , RooArgList(*c_RTgauss,*c_WTgauss), RooArgList(frt));
     RooProdPdf  c_signalFunction("c_signalFunction", "c_signalFunction", RooArgList(signalFunction, c_frt))   ;  
     c_pdfs->add(*c_sigma_wt);
-    c_pdfs->add(*c_mean_wt);
+//    c_pdfs->add(*c_mean_wt);
+    c_pdfs->add(*c_deltaPeaks);
     c_pdfs->add(*c_alpha_wt1);
     c_pdfs->add(*c_alpha_wt2);
     c_pdfs->add(*c_n_wt1);
@@ -3623,7 +3814,8 @@ double FitMassSpectrumRoofit(RooDataSet* data, TCanvas* c2, TH1D* masHist, TH1D*
 //    c_pdfs->add(signalFunction);
 
     c_vars->add(*sigma_wt);
-    c_vars->add(*mean_wt);
+    c_vars->add(*deltaPeakVar);
+//    c_vars->add(*mean_wt);
     c_vars->add(*alpha_wt1);
     c_vars->add(*alpha_wt2);
     c_vars->add(*n_wt1);
@@ -3631,7 +3823,8 @@ double FitMassSpectrumRoofit(RooDataSet* data, TCanvas* c2, TH1D* masHist, TH1D*
     c_vars->add(frt);
 
 ////// now create background parametrization
-    RooRealVar*  slope= new RooRealVar("slope"      , "slope"           ,    0.5,   -10, 10);
+    RooRealVar*  slope= new RooRealVar("slope"      , "slope"           ,    -6.,   -10, 10);
+//    RooRealVar*  slope= new RooRealVar("slope"      , "slope"           ,    0.5,   -10, 10);
 //    RooExponential bkg_exp("bkg_exp"    , "exponential"     ,  *slope,   *tagged_mass  );
 //     RooRealVar     pol_c1("p1"          , "coeff x^0 term"  ,    0.5,   -10, 10);
 //     RooRealVar     pol_c2("p2"          , "coeff x^1 term"  ,    0.5,   -10, 10);
@@ -3649,13 +3842,15 @@ double FitMassSpectrumRoofit(RooDataSet* data, TCanvas* c2, TH1D* masHist, TH1D*
     RooRealVar*     pol_b4= new RooRealVar("pol_b4"          , "b4"  ,    0.1 , 0., pol_bmax);
     if(Q2Bin!=4){
 //   if(Q2Bin!=4&&Q2Bin!=6){
-     bkg_exp = new RooExponential("bkg_exp"    , "exponential"     ,  *slope,   *tagged_mass  );
-    }else{
-//     pol_b0->setConstant(kTRUE);
-//     pol_b4->setConstant(kTRUE);
-//     pol_b3->setConstant(kTRUE);
-     bkg_exp = new RooBernstein("bkg_exp"    , "bernstein pol"  ,  *tagged_mass, RooArgList(*pol_b0,*pol_b1,*pol_b2,*pol_b3,*pol_b4));
-    }
+// INVERTITA!!!     bkg_exp = new RooExponential("bkg_exp"    , "exponential"     ,  *slope,   *tagged_mass  );
+     bkg_exp = new RooExponential("bkg_exp"    , "exponential"     ,   *tagged_mass ,  *slope );
+   }else{
+//     bkg_exp = new RooExponential("bkg_exp"    , "exponential"     ,   *tagged_mass , *slope);
+    pol_b0->setConstant(kTRUE);
+////    pol_b4->setConstant(kTRUE);
+    pol_b3->setConstant(kTRUE);
+    bkg_exp = new RooBernstein("bkg_exp"    , "bernstein pol"  ,  *tagged_mass, RooArgList(*pol_b0,*pol_b1,*pol_b2,*pol_b3,*pol_b4));
+   }
     
     int NCPU=1;
     if(NFactGen>1) NCPU=10;
@@ -3670,17 +3865,17 @@ double FitMassSpectrumRoofit(RooDataSet* data, TCanvas* c2, TH1D* masHist, TH1D*
        backgIni = yieldBckg;
        yieldMin = 100000.;
        backgMin = 100000.;
-       yieldMax = 2000000.;
+       yieldMax = 3000000.;
        backgMax = 1000000.;
        NCPU=60;
     }   
    if(Q2Bin==6) {
-       yieldIni = 90000;
-       backgIni = 30000;
-       yieldMin = 10000.;
-       backgMin = 10000.;
-       yieldMax = 200000.;
-       backgMax = 100000.;
+       yieldIni = 100000;
+       backgIni = 60000;
+       yieldMin = 0.;
+       backgMin = 0.;
+       yieldMax = 1000000.;
+       backgMax = 1000000.;
     }   
     RooRealVar     nsig("Yield"         , "signal frac"    ,   yieldIni,     yieldMin, yieldMax  );
     RooRealVar     nbkg("nbkg"          , "bkg fraction"   ,   backgIni,     backgMin, backgMax  );
@@ -3704,6 +3899,7 @@ double FitMassSpectrumRoofit(RooDataSet* data, TCanvas* c2, TH1D* masHist, TH1D*
     		      );
      		      
    r->Print();	
+   std::cout<<Form("Warning! Number of Fitted Data = %f, Yield=%f, nbkg=%f Yield+nbkg=%f",NumFittedData,nsig.getVal(),nbkg.getVal(),nsig.getVal()+nbkg.getVal())<<std::endl;
 //   Q2Bin=Q2BinTMP;	      
 //
 //
@@ -3934,7 +4130,8 @@ double FitMassSpectrumRoofit(RooDataSet* data, TCanvas* c2, TH1D* masHist, TH1D*
 //      }
      
      
-     B0SigmaTemp = sqrt(B0SigmaRT*B0SigmaRT*fraction->getVal()+(1.-fraction->getVal())*B0sigma_wt*B0sigma_wt);
+//     B0SigmaTemp = sqrt(B0SigmaRT*B0SigmaRT*fraction->getVal()+(1.-fraction->getVal())*B0sigma_wt*B0sigma_wt);
+     B0SigmaTemp = sqrt(B0SigmaRT*B0SigmaRT*(1.-fractionWT->getVal())+fractionWT->getVal()*B0sigma_wt*B0sigma_wt);
      
 
      std::cout<<Form("B0SigmaRT = %f B0sigma_wt = %f B0SigmaTot = %f",B0SigmaRT,B0sigma_wt,B0SigmaTemp) <<std::endl;
@@ -4170,13 +4367,15 @@ double FitMassSpectrumRoofit(RooDataSet* data, TCanvas* c2, TH1D* masHist, TH1D*
 //     
      RooAbsReal* SignSBL_wt = c_WTgauss->createIntegral(*tagged_mass,*tagged_mass,"SBLeft");
      RooAbsReal* SignSBR_wt = c_WTgauss->createIntegral(*tagged_mass,*tagged_mass,"SBRight");
-     double SignEventsSBL_wt = SignSBL_wt->getVal()*nsig.getVal()*(1-fraction->getVal());
-     double SignEventsSBR_wt = SignSBR_wt->getVal()*nsig.getVal()*(1-fraction->getVal());
+     double SignEventsSBL_wt = SignSBL_wt->getVal()*nsig.getVal()*(fractionWT->getVal());
+     double SignEventsSBR_wt = SignSBR_wt->getVal()*nsig.getVal()*(fractionWT->getVal());
+//      double SignEventsSBL_wt = SignSBL_wt->getVal()*nsig.getVal()*(1-fraction->getVal());
+//      double SignEventsSBR_wt = SignSBR_wt->getVal()*nsig.getVal()*(1-fraction->getVal());
 //     
      RooAbsReal* SignSBL_rt = c_RTgauss->createIntegral(*tagged_mass,*tagged_mass,"SBLeft");
      RooAbsReal* SignSBR_rt = c_RTgauss->createIntegral(*tagged_mass,*tagged_mass,"SBRight");
-     double SignEventsSBL_rt = SignSBL_rt->getVal()*nsig.getVal()*fraction->getVal();
-     double SignEventsSBR_rt = SignSBR_rt->getVal()*nsig.getVal()*fraction->getVal();
+     double SignEventsSBL_rt = SignSBL_rt->getVal()*nsig.getVal()*(1.-fractionWT->getVal());
+     double SignEventsSBR_rt = SignSBR_rt->getVal()*nsig.getVal()*(1.-fractionWT->getVal());
 //     
      RooAbsReal* ModelSBL = fitFunction.createIntegral(*tagged_mass,*tagged_mass,"SBLeft");
      RooAbsReal* ModelSBR = fitFunction.createIntegral(*tagged_mass,*tagged_mass,"SBRight");
@@ -4199,8 +4398,8 @@ double FitMassSpectrumRoofit(RooDataSet* data, TCanvas* c2, TH1D* masHist, TH1D*
      std::cout<<Form("========> real	events SB Total= %f",RealEventsSBL+RealEventsSBR ) <<std::endl;
      std::cout<<Form("========> real	all events inside [full] range Total= %f",data->sumEntries(Form("tagged_mass>%f&&tagged_mass<%f",tagged_mass_rangeMin,tagged_mass_rangeMax)) ) <<std::endl;
      std::cout<<Form("========> Fit	all events inside [full] range Total= %f",ModelFull->getVal()*(nsig.getVal()+nbkg.getVal())) <<std::endl;
-     std::cout<<Form("========> real	all events Total= %f",data->sumEntries(Form("tagged_mass>%f&&tagged_mass<%f",XMinSign,XMaxSign)) ) <<std::endl;
-     std::cout<<Form("========> Fit	all events Total= %f",(nsig.getVal()+nbkg.getVal())) <<std::endl;
+     std::cout<<Form("========> real	all events Total [%f,%f]= %f",XMinSign,XMaxSign,data->sumEntries(Form("tagged_mass>%f&&tagged_mass<%f",XMinSign,XMaxSign)) ) <<std::endl;
+//     std::cout<<Form("========> Fit	all events Total= %f",(nsig.getVal()+nbkg.getVal())) <<std::endl;
 //
      std::cout<<Form("Estimated Sign	events SB Left = %f",SignEventsSBL)  <<std::endl;
      std::cout<<Form("Estimated Sign	events SB Right= %f",SignEventsSBR)  <<std::endl;
@@ -4282,6 +4481,7 @@ double FitMassSpectrumRoofit(RooDataSet* data, TCanvas* c2, TH1D* masHist, TH1D*
 //      double BckgIntSBL= nbkg.getVal()*bkgHist->Integral(MinBinSBL,MaxBinSBL)/bkgHist->Integral(MinBinRangeFit,MaxBinRangeFit);
 //      std::cout<<Form("pdfHist (=model of mass spectrum) MinBinSBL = %d MaxBinSBL = %d Integ = %f",MinBinSBL,MaxBinSBL,BckgIntSBL) <<std::endl;
 //  
+     c2->cd();
      masHist->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
      masHist->SetMarkerStyle(8);
      masHist->SetMarkerSize(MarkerSizeSet);
@@ -4306,6 +4506,7 @@ double FitMassSpectrumRoofit(RooDataSet* data, TCanvas* c2, TH1D* masHist, TH1D*
      bkgHist->SetFillColor(0);
      bkgHist->Draw("same,HIST C");
      leg_sign->Draw("same");
+     c2->Update();
   
   fitMassFile->Close();
   return B0SigmaTemp;
@@ -4410,7 +4611,7 @@ RooGaussian* _constrainVar(RooRealVar *var,RooWorkspace *w){
 //   } 
 // //
 //    slope	 = RooRealVar	 ("slope"      , "slope"	   ,	0.5,   -10, 10);
-//    bkg_exp	 = RooExponential("bkg_exp"    , "exponential"     ,  slope,   tagged_mass  );
+//    bkg_exp	 = RooExponential("bkg_exp"    , "exponential"     ,     tagged_mass, tagged mass  );
 //    pol_c1	 = RooRealVar	 ("p1"         , "coeff x^0 term"  ,	0.5,   -10, 10);
 //    pol_c2	 = RooRealVar	 ("p2"         , "coeff x^1 term"  ,	0.5,   -10, 10);
 //    bkg_pol	 = RooChebychev  ("bkg_pol"    , "2nd order pol"   ,  tagged_mass, RooArgList(pol_c1,pol_c2));
@@ -4765,5 +4966,15 @@ void replaceChar(char * txt,const  char * txt1,const  char * txt2) {
   sss2.clear();
   printf ("replaceChar output=>%s\n",txt);
 }  
-
+//===============================================================================================================
+double deltaR(double eta1, double phi1, double eta2, double phi2)
+{
+  float deltaPhi = phi1 - phi2;
+  if (fabs(deltaPhi)>TMath::Pi()) {
+    if (deltaPhi>0) deltaPhi = deltaPhi - 2*TMath::Pi();
+    else deltaPhi = deltaPhi + 2*TMath::Pi();
+  }
+  float deltaEta = eta1 - eta2;
+  return sqrt( deltaEta*deltaEta + deltaPhi*deltaPhi );
+}
 

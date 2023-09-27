@@ -283,6 +283,7 @@ __device__ fptype device_MultiBernsteinTest(fptype *evt, fptype *p, unsigned int
         sz[i]= sz[i-1]*(1.-z);
        }
        int ipar =4 + 2*numObservables;
+       int ipa0 =ipar;
 //       int kk = 0;
 //       int ii = 0;
 //       int jj = 0;
@@ -305,6 +306,7 @@ __device__ fptype device_MultiBernsteinTest(fptype *evt, fptype *p, unsigned int
 // 	   fptype bernknvalx =  device_coeffbinomial_ber(maxDegree1,i)*tx*pow(1.0-x,maxDegree1-i);
 // 	   fptype bernknvaly =  device_coeffbinomial_ber(maxDegree2,j)*ty*pow(1.0-y,maxDegree2-j);
 //  	   fptype bernknvalz =  device_coeffbinomial_ber(maxDegree3,k)*tz*pow(1.0-z,maxDegree3-k);
+	   if (k==0) ipa0=ipar;
 	   bernknvalz =  device_coeffbinomial_ber(maxDegree3,k)*tz*sz[maxDegree3-k];
 //	   std::cout<<"func = par["<<ipar<<"]*x^"<<ii<"*y^"<<jj<<"*z^"<<kk<<std::endl;
 //        	   fptype bernknvalx =  device_BernsteinTestkn_func(x,maxDegree1,i);
@@ -315,8 +317,14 @@ __device__ fptype device_MultiBernsteinTest(fptype *evt, fptype *p, unsigned int
 // 	   fptype bernknintz =  device_BernsteinTestkn_intg(z,maxDegree3,k);
 //            func +=(p[(indices[ipar])])*bernknvalx*bernknvaly*bernknvalz;
 //            intg +=(p[(indices[ipar])])*bernknintx*bernkninty*bernknintz;
-           func   +=(p[(indices[ipar])])*bernknvalx*bernknvaly*bernknvalz;
-           intg_1 +=(p[(indices[ipar])]);
+ 	   if(k==maxDegree3){
+            func   +=(p[(indices[ipa0])])*bernknvalx*bernknvaly*bernknvalz;
+            intg_1 +=(p[(indices[ipa0])]);
+	   }else{
+            func   +=(p[(indices[ipar])])*bernknvalx*bernknvaly*bernknvalz;
+            intg_1 +=(p[(indices[ipar])]);
+	    ipar++;
+	   } 
 // 	    if ((0 == THREADIDX) && (0 == BLOCKIDX)){
 //  	     printf("MultiBernsteinTest  par = %f       \n",(p[(indices[ipar])]));
 // 	     printf("MultiBernsteinTest  par = %f       B_(%d,%d,%d) = %f intg=%f\n",(p[(indices[ipar])]),ii,jj,kk,bernknvalx,bernknintx);
@@ -326,7 +334,6 @@ __device__ fptype device_MultiBernsteinTest(fptype *evt, fptype *p, unsigned int
 // 	printf("MultiBernsteinTest MaxDegree=%d coefficient = %f   number = %d\n",maxDegree,(p[(indices[ipar])]),ipar-2-2*numObservables);
 //        } 
 	   
-	   ipar++;
 //           ii = (jj+kk+ii<maxDegree?++ii:0);
 	   tz*=z;
 	  }
@@ -404,6 +411,7 @@ __device__ fptype device_MultiBinBernsteinTest(fptype *evt, fptype *p, unsigned 
 //    z=(z-zmin)/zdif;
     
        int ipar =4 + 3*(numObservables);
+       int ipa0 =ipar;
 //       int kk = 0;
 //       int ii = 0;
 //       int jj = 0;
@@ -416,12 +424,17 @@ __device__ fptype device_MultiBinBernsteinTest(fptype *evt, fptype *p, unsigned 
 //          ii = 0;
           for(int k = 0; k <= maxDegree3 ; ++k) {
 
+	   if (k==0) ipa0=ipar;
            fptype bernknintgbinx = device_BernsteinTestkn_intgBin(xLeft,xRight,maxDegree1,i);
            fptype bernknintgbiny = device_BernsteinTestkn_intgBin(yLeft,yRight,maxDegree2,j);
            fptype bernknintgbinz = device_BernsteinTestkn_intgBin(zLeft,zRight,maxDegree3,k);
-           ret   +=(p[(indices[ipar])])*bernknintgbinx*bernknintgbiny*bernknintgbinz;
-	   
-	   ipar++;
+	   if(k==maxDegree3){
+            ret   +=(p[(indices[ipa0])])*bernknintgbinx*bernknintgbiny*bernknintgbinz;
+	   }else{
+            ret   +=(p[(indices[ipar])])*bernknintgbinx*bernknintgbiny*bernknintgbinz;
+	    ipar++;
+	   } 
+//	   
 //           ii = (jj+kk+ii<maxDegree?++ii:0);
 	  }
 //          jj = (jj+kk+ii<maxDegree?++jj:0);
@@ -489,6 +502,7 @@ __device__ fptype device_MultiBinBernsteinWrongTest(fptype *evt, fptype *p, unsi
 //    z=(z-zmin)/zdif;
     
        int ipar =4 + 3*(numObservables);
+       int ipa0 = ipar;
 //       int kk = 0;
 //       int ii = 0;
 //       int jj = 0;
@@ -501,12 +515,16 @@ __device__ fptype device_MultiBinBernsteinWrongTest(fptype *evt, fptype *p, unsi
 //          ii = 0;
           for(int k = 0; k <= maxDegree3 ; ++k) {
 
+	   if (k==0) ipa0=ipar;
            fptype bernknintgbinx = device_BernsteinTestkn_intgBin(xLeft,xRight,maxDegree1,i);
            fptype bernknintgbiny = device_BernsteinTestkn_intgBin(yLeft,yRight,maxDegree2,j);
            fptype bernknintgbinz = device_BernsteinTestkn_intgBin(zLeft,zRight,maxDegree3,k);
-           ret   +=(p[(indices[ipar])])*bernknintgbinx*bernknintgbiny*bernknintgbinz;
-	   
-	   ipar++;
+	   if(k==maxDegree3){
+            ret   +=(p[(indices[ipa0])])*bernknintgbinx*bernknintgbiny*bernknintgbinz;
+	   }else{
+            ret   +=(p[(indices[ipar])])*bernknintgbinx*bernknintgbiny*bernknintgbinz;
+	    ipar++;
+	   } 
 //           ii = (jj+kk+ii<maxDegree?++ii:0);
 	  }
 //          jj = (jj+kk+ii<maxDegree?++jj:0);
@@ -604,6 +622,7 @@ __device__ fptype device_MultiAdaptBernsteinTest(fptype *evt, fptype *p, unsigne
 //   	 printf("MultiEffiBernsteinTest zLeft=%5.15f zRight = %5.15f\n",zLeft,zRight);
 //  	}
        int ipar = 4 + numObservables*2; 
+       int ipa0 = ipar;
        //conteggio indici: gli interi [numero Obs + 3 gradi del poly (maxDeg1,2,3) = 4] + num obs(vars+bins) + num limiti (6)
 //       int kk = 0;
 //       int ii = 0;
@@ -631,6 +650,7 @@ __device__ fptype device_MultiAdaptBernsteinTest(fptype *evt, fptype *p, unsigne
 //            func +=(p[(indices[ipar])])*bernknvalx*bernknvaly*bernknvalz;
 //            intg +=(p[(indices[ipar])])*bernknintx*bernkninty*bernknintz;
 
+	   if (k==0) ipa0=ipar;
            fptype bernknintgbinx = device_BernsteinTestkn_intgBin(xLeft,xRight,maxDegree1,i);
            fptype bernknintgbiny = device_BernsteinTestkn_intgBin(yLeft,yRight,maxDegree2,j);
            fptype bernknintgbinz = device_BernsteinTestkn_intgBin(zLeft,zRight,maxDegree3,k);
@@ -638,8 +658,14 @@ __device__ fptype device_MultiAdaptBernsteinTest(fptype *evt, fptype *p, unsigne
 //           mu   +=(p[(indices[ipar])])*bernknintgbiny/(yBinw);
 //           mu   +=(p[(indices[ipar])])*bernknintgbinz/(zBinw);
 //           mu   +=(p[(indices[ipar])])*bernknintgbinx*bernknintgbiny*bernknintgbinz/(xBinw*yBinw*zBinw);
-           ret    +=(p[(indices[ipar])])*bernknintgbinx*bernknintgbiny*bernknintgbinz;
-           intg_1 +=(p[(indices[ipar])]);
+ 	   if(k==maxDegree3){
+            ret    +=(p[(indices[ipa0])])*bernknintgbinx*bernknintgbiny*bernknintgbinz;
+            intg_1 +=(p[(indices[ipa0])]);
+ 	   }else{
+            ret    +=(p[(indices[ipar])])*bernknintgbinx*bernknintgbiny*bernknintgbinz;
+            intg_1 +=(p[(indices[ipar])]);
+	    ipar++;
+	   } 
 //           intg_1 +=(p[(indices[ipar])]);
 //  	if ( (47 == THREADIDX) && (0 == BLOCKIDX)){
 // //  	 printf("MultiEffiBernsteinTest bernknintgbinx=%5.15f\n",bernknintgbinx);
@@ -657,7 +683,6 @@ __device__ fptype device_MultiAdaptBernsteinTest(fptype *evt, fptype *p, unsigne
 // 	printf("MultiEffiBernsteinTest MaxDegree=%d coefficient = %f   number = %d\n",maxDegree,(p[(indices[ipar])]),ipar-2-2*numObservables);
 //        } 
 	   
-	   ipar++;
 //           ii = (jj+kk+ii<maxDegree?++ii:0);
 	  }
 //          jj = (jj+kk+ii<maxDegree?++jj:0);
@@ -752,7 +777,8 @@ __host__ BernsteinTestPdf::BernsteinTestPdf(std::string n, Observable _x, std::v
  
 //     int j=1;
 //     numParameters = pow((maxDegree+1),coeffs.size());
-     numParameters = (maxDegree1+1)*(maxDegree2+1)*(maxDegree3+1);
+     numParameters = (maxDegree1+1)*(maxDegree2+1)*(maxDegree3);
+//     numParameters = (maxDegree1+1)*(maxDegree2+1)*(maxDegree3+1);
      while(numParameters > coeffs.size()) {
 	 char varName[100];
 	 sprintf(varName, "%s_extra_coeff_%i", getName().c_str(), static_cast<int>(coeffs.size()));
@@ -821,7 +847,8 @@ __host__ BernsteinTestPdf::BernsteinTestPdf(std::string n, Observable _x, std::v
  
 //     int j=1;
 //     numParameters = pow((maxDegree+1),coeffs.size());
-     numParameters = (maxDegree1+1)*(maxDegree2+1)*(maxDegree3+1);
+     numParameters = (maxDegree1+1)*(maxDegree2+1)*(maxDegree3);
+//     numParameters = (maxDegree1+1)*(maxDegree2+1)*(maxDegree3+1);
      while(numParameters > coeffs.size()) {
 	 char varName[100];
 	 sprintf(varName, "%s_extra_coeff_%i", getName().c_str(), static_cast<int>(coeffs.size()));
@@ -896,7 +923,8 @@ __host__ BernsteinTestPdf::BernsteinTestPdf(std::string n, Observable _x, std::v
  
 //     int j=1;
 //     numParameters = pow((maxDegree+1),coeffs.size());
-     numParameters = (maxDegree1+1)*(maxDegree2+1)*(maxDegree3+1);
+     numParameters = (maxDegree1+1)*(maxDegree2+1)*(maxDegree3);
+//     numParameters = (maxDegree1+1)*(maxDegree2+1)*(maxDegree3+1);
      while(numParameters > coeffs.size()) {
 	 char varName[100];
 	 sprintf(varName, "%s_extra_coeff_%i", getName().c_str(), static_cast<int>(coeffs.size()));
@@ -967,7 +995,8 @@ __host__ BernsteinTestPdf::BernsteinTestPdf(std::string n, Observable _x, std::v
  
 //     int j=1;
 //     numParameters = pow((maxDegree+1),coeffs.size());
-     numParameters = (maxDegree1+1)*(maxDegree2+1)*(maxDegree3+1);
+     numParameters = (maxDegree1+1)*(maxDegree2+1)*(maxDegree3);
+//     numParameters = (maxDegree1+1)*(maxDegree2+1)*(maxDegree3+1);
      while(numParameters > coeffs.size()) {
 	 char varName[100];
 	 sprintf(varName, "%s_extra_coeff_%i", getName().c_str(), static_cast<int>(coeffs.size()));

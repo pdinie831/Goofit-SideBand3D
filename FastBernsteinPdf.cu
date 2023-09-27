@@ -226,6 +226,7 @@ __device__ fptype device_MultiFastBernstein(fptype *evt, fptype *p, unsigned int
        
        
        int ipar =4 + 2*numObservables;
+       int ipa0 =ipar;
 //       int kk = 0;
 //       int ii = 0;
 //       int jj = 0;
@@ -247,6 +248,7 @@ __device__ fptype device_MultiFastBernstein(fptype *evt, fptype *p, unsigned int
           fptype tz = 1.;
           for(int k = 0; k <= maxDegree3 ; ++k) {
 	   bernknvalz =  device_coeffbinomial_fast(maxDegree3,k)*tz*sz[maxDegree3-k];
+	   if (k==0) ipa0=ipar;
 //	   std::cout<<"func = par["<<ipar<<"]*x^"<<ii<<"*y^"<<jj<<"*z^"<<kk<<std::endl;
 //     	   fptype bernknvalx =  device_coeffbinomial_fast(maxDegree1,i)*pow(x,i)*pow(1.0-x,maxDegree1-i);
 //     	   fptype bernknvaly =  device_coeffbinomial_fast(maxDegree2,j)*pow(y,j)*pow(1.0-y,maxDegree2-j);
@@ -259,8 +261,14 @@ __device__ fptype device_MultiFastBernstein(fptype *evt, fptype *p, unsigned int
 //	   fptype bernknintz =  device_bernsteinkn_intg(z,maxDegree3,k);
 //            func +=(p[(indices[ipar])])*bernknvalx*bernknvaly*bernknvalz;
 //            intg +=(p[(indices[ipar])])*bernknintx*bernkninty*bernknintz;
-           func   +=(p[(indices[ipar])])*bernknvalx*bernknvaly*bernknvalz;
-           intg_1 +=(p[(indices[ipar])]);
+	   if(k==maxDegree3){
+            func   +=(p[(indices[ipa0])])*bernknvalx*bernknvaly*bernknvalz;
+            intg_1 +=(p[(indices[ipa0])]);
+	   }else{
+            func   +=(p[(indices[ipar])])*bernknvalx*bernknvaly*bernknvalz;
+            intg_1 +=(p[(indices[ipar])]);
+	    ipar++;
+	   } 
 // 	    if ((0 == THREADIDX) && (0 == BLOCKIDX)){
 //  	     printf("MultiFastBernstein  par = %f       \n",(p[(indices[ipar])]));
 // 	     printf("MultiFastBernstein  par = %f       B_(%d,%d,%d) = %f intg=%f\n",(p[(indices[ipar])]),ii,jj,kk,bernknvalx,bernknintx);
@@ -269,8 +277,6 @@ __device__ fptype device_MultiFastBernstein(fptype *evt, fptype *p, unsigned int
 //        if ((0 == THREADIDX) && (0 == BLOCKIDX)){
 // 	printf("MultiFastBernstein MaxDegree=%d coefficient = %f   number = %d\n",maxDegree,(p[(indices[ipar])]),ipar-2-2*numObservables);
 //        } 
-	   
-	   ipar++;
 //           ii = (jj+kk+ii<maxDegree?++ii:0);
 	   tz*=z;
 	  }
@@ -337,7 +343,8 @@ __host__ FastBernsteinPdf::FastBernsteinPdf(std::string n, Observable _x, std::v
  
 //     int j=1;
 //     numParameters = pow((maxDegree+1),coeffs.size());
-     numParameters = (maxDegree1+1)*(maxDegree2+1)*(maxDegree3+1);
+//     numParameters = (maxDegree1+1)*(maxDegree2+1)*(maxDegree3+1);
+     numParameters = (maxDegree1+1)*(maxDegree2+1)*(maxDegree3);
      size_t limit = 0;
      cudaDeviceGetLimit(&limit, cudaLimitStackSize);
      printf("cudaLimitStackSize: %u\n", (unsigned)limit);
